@@ -14,9 +14,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 public class NumberServer extends WebSocketServer {
 
@@ -26,7 +24,7 @@ public class NumberServer extends WebSocketServer {
 
     private static final Map<String, WebSocket> ipMap = new ConcurrentHashMap<>();
 
-    private static final Set<BigInteger> integerSet = new ConcurrentSkipListSet<>();
+    private static final Map<BigInteger, String> integers = new ConcurrentHashMap<>();
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) { //данный метод вызывается при открытии апргрейде коннета до WebSocket
@@ -58,10 +56,10 @@ public class NumberServer extends WebSocketServer {
     public void onMessage(WebSocket conn, String message) {
         final ObjectMapper mapper = new ObjectMapper();
         BigInteger number = generate();
-        if (integerSet.contains(number)) { //проверка на дубли сгенерированных чисел (фактически дублей быть не может, но для данного тестового кейса оставляем проверку)
+        if (integers.containsKey(number)) { //проверка на дубли сгенерированных чисел (фактически дублей быть не может, но для данного тестового кейса оставляем проверку)
             number = generate();
         } else {
-            integerSet.add(number);
+            integers.put(number, "");
         }
         final Message outcomeMessage = buildMessage(number);
         try {
